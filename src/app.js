@@ -22,42 +22,58 @@ app.use('/api/import', importRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/users', userRoutes);
 
-const storage = multer.memoryStorage();
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB file size limit
-});
+router.post('/api/openBuffet', async (req, res) => {
+  try {
+    const response = await fetch('http://10.147.18.50:8080/buffet-food-quality-analyzer-01/actions/openBuffet', {
+      method: 'POST',
+    });
 
-app.post("/api/upload", upload.single("file"), async (req, res) => {
-
-    if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Erro ao enviar comando para o buffet.' });
     }
 
-    try {
-        // Convert the uploaded file (buffer) to Base64
-        const base64Image = req.file.buffer.toString("base64");
-
-        const response = await fetch("http://192.168.137.248/buffet-food-quality-cam-01/properties/photo", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "text/plain"
-            },
-            body: base64Image
-        });
-
-        if (!response.ok) {
-            console.error("Erro:", response.status);
-        } else {
-            console.log("Enviado com sucesso!");
-        }
-
-        
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to process the image." });
-    }
+    res.json({ message: "Comando 'openBuffet' enviado com sucesso!" });
+  } catch (error) {
+    console.error('Erro no proxy:', error.message);
+    res.status(500).json({ error: 'Erro no servidor proxy.' });
+  }
 });
+
+router.post('/api/closeBuffet', async (req, res) => {
+  try {
+    const response = await fetch('http://10.147.18.50:8080/buffet-food-quality-analyzer-01/actions/closeBuffet', {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Erro ao enviar comando para o buffet.' });
+    }
+
+    res.json({ message: "Comando 'closeBuffet' enviado com sucesso!" });
+  } catch (error) {
+    console.error('Erro no proxy:', error.message);
+    res.status(500).json({ error: 'Erro no servidor proxy.' });
+  }
+});
+
+router.post('/api/currentSensorData', async (req, res) => {
+  try {
+    const response = await fetch('http://10.147.18.50:8080/buffet-food-quality-analyzer-01/properties/currentSensorData', {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Erro ao enviar comando para o buffet.' });
+    }
+
+    res.json({ message: "Comando 'currentSensorData' enviado com sucesso!" });
+  } catch (error) {
+    console.error('Erro no proxy:', error.message);
+    res.status(500).json({ error: 'Erro no servidor proxy.' });
+  }
+});
+
+
 
 
 module.exports = app;
