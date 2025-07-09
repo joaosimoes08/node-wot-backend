@@ -3,6 +3,8 @@ const cors = require('cors');
 require('dotenv').config();
 const multer = require('multer');
 
+const router = express.Router();
+
 const sensorsRoutes = require('./routes/sensors.routes');
 const alertsRoutes = require('./routes/alerts.routes');
 const dbRoutes = require('./routes/db.routes');
