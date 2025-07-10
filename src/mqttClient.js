@@ -1,7 +1,13 @@
 const mqtt = require("mqtt");
 const { broadcast } = require("./routes/notifications.routes");
+require('dotenv').config();
 
-const client = mqtt.connect("mqtt://test.mosquitto.org:1883");
+const client = mqtt.connect(`mqtts://${process.env.MQTT_HOST}:8885`, {
+  username: process.env.MQTT_USER,
+  password: process.env.MQTT_PASS,
+  clientId: process.env.MQTT_CLIENTID,
+  rejectUnauthorized: false, // ou usar `ca: fs.readFileSync('ca.crt')`
+});
 
 client.on("connect", () => {
   const topic = "buffet-food-quality-analyzer-01/events/#";
@@ -12,19 +18,26 @@ client.on("connect", () => {
 });
 
 client.on("message", (topic, message) => {
+  const msg = message.toString();
+
   try {
-    const msg = message.toString(); 
-    const payload = JSON.parse(msg)
-    console.log("📡 MQTT:", topic, payload);
+    const payload = JSON.parse(msg); // se for JSON válido
+    console.log("📡 MQTT (JSON):", topic, payload);
 
     broadcast({
       topic,
-      ...msg
+      ...payload
     });
 
   } catch (err) {
-    console.error("❌ Erro ao processar mensagem MQTT:", err.message);
+    console.log("📡 MQTT (texto):", topic, msg);
+
+    broadcast({
+      topic,
+      message: msg
+    });
   }
+
 });
 
 module.exports = client;
