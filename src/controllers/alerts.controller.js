@@ -8,7 +8,18 @@ async function createAlert(req, res) {
     return res.status(400).json({ message: 'Dados do alerta incompletos.' });
   }
 
-  const alertId = `alert-${Date.now()}-${sensorId}-${metric}`;
+  let alertId;
+
+  if (metric == 'humidity') {
+    alertId = `alert-${Date.now()}-${sensorId}-humidityAlert`;
+  } else if (metric == 'temperature') {
+    alertId = `alert-${Date.now()}-${sensorId}-temperatureAlert`
+  } else if (metric == 'co2') {
+    alertId = `alert-${Date.now()}-${sensorId}-co2Alert`
+  } else if (metric == 'tvoc') {
+    alertId = `alert-${Date.now()}-${sensorId}-tvocAlert`
+  }
+  
 
   const newAlert = {
     alertId,
